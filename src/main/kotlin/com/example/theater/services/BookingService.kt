@@ -1,6 +1,6 @@
 package com.example.theater.services
 
-import com.example.theater.main.Seat
+import com.example.theater.domain.Seat
 import org.springframework.stereotype.Service
 
 @Service

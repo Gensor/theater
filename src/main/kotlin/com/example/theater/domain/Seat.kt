@@ -1,4 +1,4 @@
-package com.example.theater.main
+package com.example.theater.domain
 
 import java.math.BigDecimal
 import javax.persistence.Entity

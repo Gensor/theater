@@ -2,7 +2,7 @@ package com.example.theater.services
 
 import org.springframework.stereotype.Service
 import java.math.BigDecimal
-import com.example.theater.main.Seat
+import com.example.theater.domain.Seat
 
 
 @Service
