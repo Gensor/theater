@@ -6,12 +6,16 @@ import com.example.theater.main.Seat
 
 
 @Service
-class TheaterService {
+class TheaterService() {
 
     private val hiddenSeats = mutableListOf<Seat>()
 
-    constructor() {
+    val seats
+    get() = hiddenSeats.toList()
 
+    fun findSeat(num:Int ,row : Char) = seats.filter { it.rowOfSeat == row && it.num == num}.first()
+
+    init {
         fun getPrice(row: Int, num: Int) : BigDecimal {
             return when {
                 row >=14 -> BigDecimal(14.50)
@@ -31,18 +35,12 @@ class TheaterService {
                 else -> "Standard Seat"
             }
         }
-
         for (row in 1..15) {
             for (num in 1..36) {
-                hiddenSeats.add(Seat((row+64).toChar(), num, getPrice(row,num), getDescription(row,num) ))
+                hiddenSeats.add(Seat(0,(row+64).toChar(), num, getPrice(row,num), getDescription(row,num) ))
             }
         }
     }
-
-	val seats
-    get() = hiddenSeats.toList()
-
-    fun findSeat(num:Int ,row : Char) = seats.filter { it.row == row && it.num == num}.first()
 
 
 }
