@@ -1,7 +1,13 @@
 package com.example.theater.control
 
+import com.example.theater.data.BookingRepository
+import com.example.theater.data.PerformanceRepository
 import com.example.theater.data.SeatRepository
+import com.example.theater.domain.Booking
+import com.example.theater.domain.Performance
+import com.example.theater.domain.Seat
 import com.example.theater.services.BookingService
+import com.example.theater.services.SeatService
 import com.example.theater.services.TheaterService
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Controller
@@ -14,26 +20,40 @@ class MainControler {
 
     @Autowired
     lateinit var theaterService : TheaterService
-
     @Autowired
     lateinit var bookingService: BookingService
+    @Autowired
+    lateinit var seatService: SeatService
 
     @Autowired
     lateinit var seatRepository : SeatRepository
+    @Autowired
+    lateinit var performanceRepository: PerformanceRepository
 
     @RequestMapping("")
     fun homePage(): ModelAndView {
-        return ModelAndView("seatBooking","bean",CheckAvailabilityBackingBean())
+        val model = mapOf("bean" to CheckAvailabilityBackingBean(),
+            "performances" to performanceRepository.findAll(),
+            "seatNums" to 1 .. 36,
+            "seatRows" to 'A'..'O')
+        return ModelAndView("seatBooking",model)
     }
 
     @RequestMapping("checkAvailability", method = arrayOf(RequestMethod.POST))
-    fun checkAvailability(bean: CheckAvailabilityBackingBean):ModelAndView{
-        val selectedSeat = theaterService.findSeat(bean.selectedSeatNum, bean.selectedSeatRow)
-        val result = bookingService.isSeatFree(selectedSeat)
+    fun checkAvailability(bean : CheckAvailabilityBackingBean) : ModelAndView{
+        val selectedSeat : Seat = seatService.findSeat(bean.selectedSeatRow, bean.selectedSeatNum)!!
+        val selectedPerformance = performanceRepository.findById(bean.selectedPerformance!!).get()
+        val isSeatAvailable = bookingService.isSeatFree(selectedSeat, selectedPerformance)
 
-        bean.result = "seat $selectedSeat is ${if (result) "available" else "booked"}"
+        bean.available = isSeatAvailable
+        bean.seat = selectedSeat
+        bean.performance = selectedPerformance
 
-        return ModelAndView("seatBooking","bean",bean)
+        val model = mapOf("bean" to bean,
+            "performances" to performanceRepository.findAll(),
+            "seatNums" to 1 .. 36,
+            "seatRows" to 'A'..'O')
+        return ModelAndView("seatBooking",model)
     }
 
     @RequestMapping("bootstrap")
@@ -46,10 +66,13 @@ class MainControler {
 
 
 class CheckAvailabilityBackingBean(){
-    val seatNums = 1 .. 36
-    val seatRows = 'A'..'O'
     var selectedSeatNum : Int = 1
     var selectedSeatRow : Char = 'A'
-    var result : String = ""
+    var selectedPerformance : Long? = null
 
+    var customerName : String = ""
+    var available : Boolean? = null
+    var seat : Seat? = null
+    var performance : Performance? = null
+    var booking : Booking? = null
 }
