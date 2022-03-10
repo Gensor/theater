@@ -16,7 +16,19 @@ class BookingService {
     fun isSeatFree(seat:Seat, performance: Performance):Boolean {
         val bookings = bookingRepository.findAll()
             .firstOrNull { it.seat == seat && it.performance == performance }
-
         return bookings !is Booking
     }
+
+    fun reserveSeat(seat: Seat, performance: Performance, customerName: String): Booking {
+        val booking = Booking(0L, customerName)
+        booking.seat = seat
+        booking.performance = performance
+        bookingRepository.save(booking)
+        return booking
+    }
+
+    fun findBooking(selectedSeat: Seat, selectedPerformance: Performance) =
+        bookingRepository.findAll()
+            .firstOrNull { it.seat == selectedSeat && it.performance == selectedPerformance }
+
 }

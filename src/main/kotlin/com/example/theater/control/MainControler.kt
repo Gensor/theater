@@ -1,6 +1,5 @@
 package com.example.theater.control
 
-import com.example.theater.data.BookingRepository
 import com.example.theater.data.PerformanceRepository
 import com.example.theater.data.SeatRepository
 import com.example.theater.domain.Booking
@@ -49,6 +48,10 @@ class MainControler {
         bean.seat = selectedSeat
         bean.performance = selectedPerformance
 
+        if (!bean.available!!){
+            bean.booking = bookingService.findBooking(selectedSeat, selectedPerformance)
+        }
+
         val model = mapOf("bean" to bean,
             "performances" to performanceRepository.findAll(),
             "seatNums" to 1 .. 36,
@@ -62,6 +65,13 @@ class MainControler {
         seatRepository.saveAll(seats)
         return homePage()
     }
+
+    @RequestMapping("booking", method = arrayOf(RequestMethod.POST))
+    fun bookSeat(bean : CheckAvailabilityBackingBean) : ModelAndView{
+        val booking = bookingService.reserveSeat(bean.seat!!, bean.performance!!, bean.customerName)
+        return ModelAndView("bookingConfirmed", "booking", booking)
+    }
+
 }
 
 
